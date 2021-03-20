@@ -31,3 +31,94 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
 <img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime1.jpg" width=80% />
+
+
+## 3. Enumeración
+
+### 3.1. Enumeración HTTP
+
+- Iniciamos la enumeración con GOBUSTER y/o DIRSEARCH
+
+```
+root@kali:~/PRIME_LEVEL1# python3 /root/dirsearch/dirsearch.py -u http://10.10.10.142/ -t 16 -r -e txt,html,php,asp,aspx,jsp -f -w /usr/share/seclists/Discovery/Web-Content/big.txt --plain-text-report="tcp_80_http_dirsearch_big.txt"
+
+  _|. _ _  _  _  _ _|_    v0.4.1
+ (_||| _) (/_(_|| (_| )
+
+Extensions: txt, html, php, asp, aspx, jsp | HTTP method: GET | Threads: 16 | Wordlist size: 163783
+
+Error Log: /root/dirsearch/logs/errors-21-03-19_21-58-07.log
+
+Target: http://10.10.10.142/
+
+Output File: /root/dirsearch/reports/10.10.10.142/_21-03-19_21-58-07.txt
+
+[21:58:07] Starting: 
+[21:58:07] 403 -  277B  - /.htaccess.asp
+[21:58:07] 403 -  277B  - /.htaccess.php
+[21:58:07] 403 -  277B  - /.htaccess.html
+[21:58:07] 403 -  277B  - /.htaccess.jsp
+[21:58:07] 403 -  277B  - /.htpasswd.html
+[21:58:07] 403 -  277B  - /.htpasswd.php
+[21:58:07] 403 -  277B  - /.htpasswd.asp
+[21:58:07] 403 -  277B  - /.htaccess.aspx
+[21:58:07] 403 -  277B  - /.htpasswd.aspx
+[21:58:08] 403 -  277B  - /.htpasswd.txt
+[21:58:08] 403 -  277B  - /.htpasswd.jsp
+[21:59:31] 200 -  131B  - /dev
+[22:00:21] 403 -  277B  - /icons/     (Added to queue)
+[22:00:22] 200 -  147B  - /image.php
+[22:00:25] 200 -  136B  - /index.php
+[22:00:32] 301 -  317B  - /javascript  ->  http://10.10.10.142/javascript/     (Added to queue)
+[22:00:32] 403 -  277B  - /javascript/
+[22:01:59] 200 -  412B  - /secret.txt
+[22:02:01] 403 -  277B  - /server-status
+[22:02:01] 403 -  277B  - /server-status/     (Added to queue)
+[22:02:50] 301 -  316B  - /wordpress  ->  http://10.10.10.142/wordpress/     (Added to queue)
+[22:02:50] 200 -   11KB - /wordpress/
+```
+
+- Encontramos un archivo /DEV, un CMS /wordpress y un archivo secret.txt
+
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime2.jpg" width=80% />
+
+### 3.2. Seguimos las pistas 
+
+- El archivo secret.txt indica lo siguiente: "haz fuzzing en cada página PHP y encuentra el parámetro correcto".
+- Nos indican una herramienta para realizar el FUZZING. No es necesario utilizar la herramienta, el ejemplo que sale en la página es suficiente.
+
+> Importante: La herramienta realiza FUZZING y prueba parámetros con el valor "SOMETHING"
+
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime3.jpg" width=80% />
+
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime4.jpg" width=80% />
+
+- El nuevo mensaje nos dice: "utiliza el parámetro 'secrettier360' en alguna página PHP"
+- Finalmente, encontramos un LFI y buscamos el archivo /etc/passwd
+
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime5.jpg" width=80% />
+
+
+## 4. Explotando la Vulnerabilidad
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
