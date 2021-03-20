@@ -30,4 +30,4 @@ Network Distance: 1 hop
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-<img src=
+<img src="https://github.com/El-Palomo/PRIME-1/blob/main/prime1.jpg" width=80% />
